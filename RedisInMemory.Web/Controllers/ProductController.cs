@@ -9,43 +9,32 @@ namespace RedisInMemory.Web.Controllers
 {
     public class ProductController : Controller
     {
-        private  IMemoryCache _memoryCache;
+        private IMemoryCache _memoryCache;
         public ProductController(IMemoryCache memoryCache)
         {
             _memoryCache = memoryCache;
         }
         public IActionResult Index()
         {
-            //1.yol
-            if(String.IsNullOrEmpty(_memoryCache.Get<string>("tarih")))
+
+            if (!_memoryCache.TryGetValue("tarih", out string tarihcache))
             {
-                _memoryCache.Set<string>("tarih", DateTime.Now.ToString());
+                MemoryCacheEntryOptions options = new MemoryCacheEntryOptions();
+
+               
+                options.AbsoluteExpiration = DateTime.Now.AddMinutes(1); //--> AbsoluteExpiration
+                options.SlidingExpiration = TimeSpan.FromSeconds(10); //--> Sliding Expiration
+
+                _memoryCache.Set<string>("tarih", DateTime.Now.ToString(), options);
             }
-            
-            //2.yol
-            if(!_memoryCache.TryGetValue("tarih",out string tarihcache))
-            {
-                _memoryCache.Set<string>("tarih", DateTime.Now.ToString());
-            }
-
-            
-
-
             return View();
         }
 
         public IActionResult Show()
         {
+            _memoryCache.TryGetValue("tarih", out string tarihcache);
 
-            _memoryCache.Remove("tarih"); //silmek için
-
-            _memoryCache.GetOrCreate<string>("tarih", entry =>
-            {
-                return DateTime.Now.ToString();
-            });
-
-
-            ViewBag.zaman=_memoryCache.Get<string>("tarih");
+            ViewBag.zaman = tarihcache;
 
             return View();
         }
