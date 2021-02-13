@@ -25,6 +25,8 @@ namespace RedisInMemory.Web.Controllers
                 options.AbsoluteExpiration = DateTime.Now.AddMinutes(1); //--> AbsoluteExpiration
                 options.SlidingExpiration = TimeSpan.FromSeconds(10); //--> Sliding Expiration
 
+                options.Priority = CacheItemPriority.High;
+
                 _memoryCache.Set<string>("tarih", DateTime.Now.ToString(), options);
             }
             return View();
