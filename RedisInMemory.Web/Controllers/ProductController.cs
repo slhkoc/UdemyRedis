@@ -16,8 +16,19 @@ namespace RedisInMemory.Web.Controllers
         }
         public IActionResult Index()
         {
+            //1.yol
+            if(String.IsNullOrEmpty(_memoryCache.Get<string>("tarih")))
+            {
+                _memoryCache.Set<string>("tarih", DateTime.Now.ToString());
+            }
+            
+            //2.yol
+            if(!_memoryCache.TryGetValue("tarih",out string tarihcache))
+            {
+                _memoryCache.Set<string>("tarih", DateTime.Now.ToString());
+            }
 
-            _memoryCache.Set<string>("tarih", DateTime.Now.ToString());
+            
 
 
             return View();
@@ -25,6 +36,15 @@ namespace RedisInMemory.Web.Controllers
 
         public IActionResult Show()
         {
+
+            _memoryCache.Remove("tarih"); //silmek için
+
+            _memoryCache.GetOrCreate<string>("tarih", entry =>
+            {
+                return DateTime.Now.ToString();
+            });
+
+
             ViewBag.zaman=_memoryCache.Get<string>("tarih");
 
             return View();
